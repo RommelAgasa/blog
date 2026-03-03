@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return Inertia::render('Login/Index');
-});
+})->name('login');
 
 Route::get('/signup', function () {
     return Inertia::render('Signup/Index');
