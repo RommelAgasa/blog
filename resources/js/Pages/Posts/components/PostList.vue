@@ -1,8 +1,42 @@
 <template>
   <div class="w-full border border-gray-300/60 rounded-2xl px-8 bg-white p-4">
     <h2 class="text-xl font-semibold mb-4">Posts</h2>
-    <ul class="list-none p-0 m-0 space-y-4">
-      <li v-for="post in posts" :key="post.id" class="group">
+
+    <!-- Loading State -->
+    <div v-if="isLoading" class="space-y-4">
+      <div
+        v-for="i in 3"
+        :key="`skeleton-${i}`"
+        class="animate-pulse">
+        <div class="h-5 bg-gray-200 rounded mb-2 w-3/4"></div>
+        <div class="h-4 bg-gray-100 rounded w-full mb-1"></div>
+        <div class="h-4 bg-gray-100 rounded w-5/6"></div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      v-else-if="posts.length === 0"
+      class="text-center py-12">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-16 w-16 mx-auto text-gray-300 mb-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4" />
+      </svg>
+      <h3 class="text-gray-500 font-semibold mb-1">No posts yet</h3>
+      <p class="text-gray-400 text-sm">Create your first post to get started</p>
+    </div>
+
+    <!-- Posts List -->
+    <ul v-else class="list-none p-0 m-0 space-y-4">
+      <li
+        v-for="post in posts"
+        :key="post.id"
+        class="group animate-in fade-in">
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
             <h3 class="m-0 mb-1 text-[1.05rem] font-semibold truncate">
@@ -52,6 +86,7 @@
 <script setup>
 defineProps({
   posts: { type: Array, required: true },
+  isLoading: { type: Boolean, default: false },
 })
 defineEmits(['edit', 'delete'])
 </script>

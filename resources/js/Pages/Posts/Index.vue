@@ -11,6 +11,7 @@
 
     <PostList
       :posts="localPosts.data"
+      :is-loading="isLoading"
       @edit="startEdit"
       @delete="remove"
     />
@@ -34,6 +35,7 @@ const {
   editingId,
   form,
   isProcessing,
+  isLoading,
   submit,
   startEdit,
   clearForm,

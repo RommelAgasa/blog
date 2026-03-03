@@ -7,6 +7,7 @@ import { useConfirm } from './useConfirm'
 export function usePosts(initialPosts) {
   const toast = useToast()
   const { show: showConfirm } = useConfirm()
+  
   // Local copy of posts (immutable prop -> mutable local)
   const localPosts = reactive({
     data: Array.isArray(initialPosts?.data) ? [...initialPosts.data] : [],
@@ -15,6 +16,7 @@ export function usePosts(initialPosts) {
   // Keep in sync if server rehydrates
   const setPosts = (next) => {
     localPosts.data = Array.isArray(next) ? [...next] : []
+    isLoading.value = false
   }
 
   // Edit state
@@ -28,6 +30,7 @@ export function usePosts(initialPosts) {
   })
 
   const isProcessing = ref(false)
+  const isLoading = ref(!(Array.isArray(initialPosts?.data) && initialPosts.data.length >= 0))
 
   async function submit() {
     editingId.value ? await onUpdate() : await onCreate()
@@ -112,6 +115,7 @@ export function usePosts(initialPosts) {
     editingId,
     form,
     isProcessing,
+    isLoading,
     submit,
     startEdit,
     clearForm,
