@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\PostResource;
-use App\Interfaces\PostRepositoryInterface;
+use App\Interfaces\PostServiceInterface;
 use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
@@ -11,11 +10,11 @@ use Inertia\Inertia;
 
 class PostController extends Controller
 {
+    protected PostServiceInterface $postService;
 
-    protected PostRepositoryInterface $postRepository;
-
-    public function __construct(PostRepositoryInterface $postRepository){
-        $this->postRepository = $postRepository;
+    public function __construct(PostServiceInterface $postService)
+    {
+        $this->postService = $postService;
     }
 
 
@@ -24,10 +23,10 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = $this->postRepository->getAllPost();
+        $posts = $this->postService->getAllPosts();
 
         return Inertia::render('Posts/Index', [
-            'posts' => PostResource::collection($posts)
+            'posts' => $posts
         ]);
     }
 
@@ -44,16 +43,9 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-        $request->validated();
+        $postDetails = $request->validated();
 
-        $postDetails = $request->only([
-            'userId',
-            'title',
-            'body'
-        ]);
-
-        $post = $this->postRepository->createPost($postDetails);
-        // $post->load('user');
+        $this->postService->createPost($postDetails);
 
         return redirect()->route('posts.index')
             ->with('message', 'Post created successfully');
@@ -64,8 +56,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return Inertia::render('Posts/Edit', [
-            'post' => new PostResource($post)
+        return Inertia::render('Posts/Show', [
+            'post' => $this->postService->getPostById($post)
         ]);
     }
 
@@ -75,7 +67,7 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         return Inertia::render('Posts/Edit', [
-            'post' => new PostResource($post)
+            'post' => $this->postService->getPostById($post)
         ]);
     }
 
@@ -84,16 +76,9 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        $request->validated();
+        $postDetails = $request->validated();
 
-        $postDetails = $request->only([
-            'title',
-            'body'
-        ]);
-
-        $this->postRepository->updatePost($post->id, $postDetails);
-
-        // return redirect()->route('posts.index', $post->id);
+        $this->postService->updatePost($post->id, $postDetails);
 
         return response()->json(['message' => 'Post successfully updated'], 200);
     }
@@ -103,9 +88,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        $isDeleted = $this->postRepository->deletePost($post->id);
-        // return redirect()->route('posts.index')
-        //     ->with('message', 'Post deleted successfully!');
+        $this->postService->deletePost($post->id);
 
         return response()->json(['message' => 'Post successfully deleted'], 200);
     }
