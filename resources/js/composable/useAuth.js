@@ -1,10 +1,12 @@
 import { ref } from 'vue'
 import { useForm } from '@inertiajs/vue3'
+import { usePage } from '@inertiajs/vue3'
 import { signup as signupApi, login as loginApi, logout as logoutApi } from '../services/auth.service'
 import { useToast } from './useToast'
 
 export function useAuth() {
   const toast = useToast()
+  const page = usePage()
 
   const form = useForm({
     name: '',
@@ -33,8 +35,12 @@ export function useAuth() {
       form.reset()
       toast.success('Account created successfully!')
     } catch (e) {
-      if (e.response?.status === 422) form.setError(e.response.data.errors || {})
-      else toast.error('Something went wrong while signing up.')
+      console.error('Signup error:', e.response?.data || e.message)
+      if (e.response?.status === 422) {
+        form.setError(e.response.data.errors || {})
+      } else {
+        toast.error('Something went wrong while signing up.')
+      }
     } finally {
       isProcessing.value = false
     }
@@ -83,6 +89,9 @@ export function useAuth() {
     form.clearErrors()
   }
 
+  // Get authenticated user from Inertia shared props
+  const authUser = () => page.props.auth?.user || null
+
   return {
     form,
     isProcessing,
@@ -91,5 +100,7 @@ export function useAuth() {
     clearForm,
     toggleMode,
     handleLogout,
+    authUser,
   }
 }
+

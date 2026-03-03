@@ -4,7 +4,7 @@ import { router } from '@inertiajs/vue3'
 export async function signup(payload) {
   const response = await http.post('/auth/signup', payload)
   // Reload page to get authenticated user
-  await router.visit('/posts', { method: 'get' })
+  await router.visit('/', { method: 'get' }) // redirect to login page after signup
   return response.data?.data || response.data
 }
 

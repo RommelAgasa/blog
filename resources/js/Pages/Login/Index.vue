@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-6 py-8">
         <div class="max-w-xl w-full">
-            <form class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <form @submit.prevent="handleSubmit" class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
                 <!-- Header -->
                 <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-transparent">
                     <div class="flex items-center gap-2">
@@ -24,12 +24,13 @@
                             Email
                             <span class="text-red-500">*</span>
                         </label>
-                        <div class="flex items-center px-4 py-2.5 border border-gray-300 rounded-lg focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all duration-200 hover:border-gray-400">
+                        <div :class="['flex items-center px-4 py-2.5 border rounded-lg focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all duration-200 hover:border-gray-400', form.errors.email ? 'border-red-500' : 'border-gray-300']">
                             <svg width="16" height="11" viewBox="0 0 16 11" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-gray-400">
                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M0 .55.571 0H15.43l.57.55v9.9l-.571.55H.57L0 10.45zm1.143 1.138V9.9h13.714V1.69l-6.503 4.8h-.697zM13.749 1.1H2.25L8 5.356z" fill="currentColor"/>
                             </svg>
-                            <input type="email" id="email" placeholder="your.email@example.com" class="ml-3 bg-transparent text-gray-900 placeholder-gray-400 outline-none text-sm w-full" required>                 
+                            <input v-model="form.email" type="email" id="email" placeholder="your.email@example.com" class="ml-3 bg-transparent text-gray-900 placeholder-gray-400 outline-none text-sm w-full" required>                 
                         </div>
+                        <p v-if="form.errors.email" class="text-red-500 text-xs mt-1">{{ form.errors.email }}</p>
                     </div>
 
                     <!-- Password Field -->
@@ -38,17 +39,18 @@
                             Password
                             <span class="text-red-500">*</span>
                         </label>
-                        <div class="flex items-center px-4 py-2.5 border border-gray-300 rounded-lg focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all duration-200 hover:border-gray-400">
+                        <div :class="['flex items-center px-4 py-2.5 border rounded-lg focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all duration-200 hover:border-gray-400', form.errors.password ? 'border-red-500' : 'border-gray-300']">
                             <svg width="13" height="17" viewBox="0 0 13 17" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-gray-400">
                                 <path d="M13 8.5c0-.938-.729-1.7-1.625-1.7h-.812V4.25C10.563 1.907 8.74 0 6.5 0S2.438 1.907 2.438 4.25V6.8h-.813C.729 6.8 0 7.562 0 8.5v6.8c0 .938.729 1.7 1.625 1.7h9.75c.896 0 1.625-.762 1.625-1.7zM4.063 4.25c0-1.406 1.093-2.55 2.437-2.55s2.438 1.144 2.438 2.55V6.8H4.061z" fill="currentColor"/>
                             </svg>
-                            <input type="password" id="password" placeholder="Enter your password" class="ml-3 bg-transparent text-gray-900 placeholder-gray-400 outline-none text-sm w-full" required>                 
+                            <input v-model="form.password" type="password" id="password" placeholder="Enter your password" class="ml-3 bg-transparent text-gray-900 placeholder-gray-400 outline-none text-sm w-full" required>                 
                         </div>
+                        <p v-if="form.errors.password" class="text-red-500 text-xs mt-1">{{ form.errors.password }}</p>
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" class="w-full py-2.5 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200 font-semibold hover:shadow-lg">
-                        Login
+                    <button type="submit" :disabled="isProcessing" class="w-full py-2.5 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed transition-colors duration-200 font-semibold hover:shadow-lg">
+                        {{ isProcessing ? 'Logging in...' : 'Login' }}
                     </button>
                 </div>
 
@@ -63,4 +65,14 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3'
+import { useAuth } from '../../composable/useAuth'
+
+const { form, isProcessing, isAuthModeSignup, submit } = useAuth()
+
+// Ensure we're in login mode
+isAuthModeSignup.value = false
+
+const handleSubmit = () => {
+    submit()
+}
 </script>

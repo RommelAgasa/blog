@@ -45,10 +45,12 @@ class PostController extends Controller
     {
         $postDetails = $request->validated();
 
-        $this->postService->createPost($postDetails);
+        $post = $this->postService->createPost($postDetails);
 
-        return redirect()->route('posts.index')
-            ->with('message', 'Post created successfully');
+        return response()->json([
+            'message' => 'Post created successfully',
+            'post' => $post
+        ], 201);
     }
 
     /**

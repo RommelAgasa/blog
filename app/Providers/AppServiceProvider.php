@@ -7,6 +7,7 @@ use App\Interfaces\PostServiceInterface;
 use App\Repositories\PostRepository;
 use App\Services\PostService;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,6 +32,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share authenticated user info with all Inertia responses
+        Inertia::share([
+            'auth' => function () {
+                return [
+                    'user' => auth()->user(),
+                ];
+            },
+        ]);
     }
 }
+

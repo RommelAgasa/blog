@@ -1,5 +1,6 @@
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useForm } from '@inertiajs/vue3' // use for form management and vaidaltion error handling
+import { usePage } from '@inertiajs/vue3'
 import { createPost, updatePost, deletePostById } from '../services/post.service'
 import { useToast } from './useToast'
 import { useConfirm } from './useConfirm'
@@ -7,6 +8,7 @@ import { useConfirm } from './useConfirm'
 export function usePosts(initialPosts) {
   const toast = useToast()
   const { show: showConfirm } = useConfirm()
+  const page = usePage()
   
   // Local copy of posts as a reactive array
   const localPosts = reactive(
@@ -24,13 +26,25 @@ export function usePosts(initialPosts) {
 
   // Form with Inertia error bag
   const form = useForm({
-    user_id: 12,
+    userId: null,
     title: '',
     body: '',
   })
 
   const isProcessing = ref(false)
   const isLoading = ref(!(Array.isArray(initialPosts?.data) && initialPosts.data.length >= 0))
+
+  // Get authenticated user from Inertia shared props
+  const initializeAuthenticatedUser = () => {
+    const authUser = page.props.auth?.user
+    if (authUser) {
+      form.userId = authUser.id
+    }
+  }
+
+  onMounted(() => {
+    initializeAuthenticatedUser()
+  })
 
   async function submit() {
     editingId.value ? await onUpdate() : await onCreate()
@@ -39,11 +53,17 @@ export function usePosts(initialPosts) {
   async function onCreate() {
     isProcessing.value = true
     form.clearErrors()
+
+    console.log('Creating post with data:', {
+      title: form.title,
+      body: form.body,
+      userId: form.userId,
+    });
     try {
       await createPost({
         title: form.title,
         body: form.body,
-        userId: form.user_id,
+        userId: form.userId,
       })
       form.reset()
       toast.success('Post created successfully!')
@@ -62,7 +82,7 @@ export function usePosts(initialPosts) {
       await updatePost(editingId.value, {
         title: form.title,
         body: form.body,
-        userId: form.user_id,
+        userId: form.userId,
       })
       toast.success('Post updated successfully!')
       cancelEdit()
