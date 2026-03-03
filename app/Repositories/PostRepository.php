@@ -8,11 +8,20 @@ use App\Models\Post;
 class PostRepository implements PostRepositoryInterface{
     
 /**
-     * Get all post for the authenticated user
+     * Get all posts from all users
      * @return \Illuminate\Database\Eloquent\Collection<int, Post>
      */
     public function getAllPost(){
-        return Post::where('userId', auth()->id())
+        return Post::orderBy('created_at', 'desc')->get();
+    }
+
+    /**
+     * Get posts by a specific user
+     * @param int $userId
+     * @return \Illuminate\Database\Eloquent\Collection<int, Post>
+     */
+    public function getUserPosts($userId){
+        return Post::where('userId', $userId)
                    ->orderBy('created_at', 'desc')
                    ->get();
     }

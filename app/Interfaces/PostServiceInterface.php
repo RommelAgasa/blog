@@ -12,6 +12,11 @@ interface PostServiceInterface
     public function getAllPosts();
 
     /**
+     * Get posts by a specific user.
+     */
+    public function getUserPosts($userId);
+
+    /**
      * Get a single post by ID.
      */
     public function getPostById(Post $post);

@@ -12,6 +12,13 @@ interface PostRepositoryInterface {
     public function getAllPost();
 
     /**
+     * Get posts by a specific user
+     * @param int $userId
+     * @return \Illuminate\Database\Eloquent\Collection<int, Post>
+     */
+    public function getUserPosts($userId);
+
+    /**
      * Get a single post by its ID
      * @param int $postId
      * @return Post

@@ -22,6 +22,12 @@ class PostService implements PostServiceInterface
         return PostResource::collection($posts);
     }
 
+    public function getUserPosts($userId)
+    {
+        $posts = $this->postRepository->getUserPosts($userId);
+        return PostResource::collection($posts);
+    }
+
     public function getPostById(Post $post)
     {
         return new PostResource($post);

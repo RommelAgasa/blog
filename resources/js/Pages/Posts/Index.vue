@@ -1,63 +1,44 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-6 py-8">
-    <div class="max-w-7xl mx-auto">
-      <!-- Grid Layout -->
-      <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <!-- Form Section -->
-        <div class="lg:col-span-1">
-          <PostForm
-            :form="form"
-            :editing-id="editingId"
-            :is-processing="isProcessing"
-            @submit="submit"
-            @clear="clearForm"
-            @cancel="cancelEdit"
-          />
+    <div class="max-w-4xl mx-auto">
+      <!-- Navigation Header -->
+      <div class="mb-8 flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-900">Posts Feed</h1>
+          <p class="text-gray-600 mt-2">Discover posts from the community</p>
         </div>
-
-        <!-- Posts List Section -->
-        <div class="lg:col-span-2">
-          <PostList
-            :posts="localPosts"
-            :is-loading="isLoading"
-            @edit="startEdit"
-            @delete="remove"
-          />
-        </div>
+        <Link :href="`/profile/${currentUser.id}`" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+          My Profile
+        </Link>
       </div>
+
+      <!-- Posts List -->
+      <PostList
+        :posts="localPosts"
+        :is-loading="isLoading"
+        :show-title="'All Posts'"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { watch } from 'vue'
-import PostForm from './components/PostForm.vue'
+import { reactive, ref, computed } from 'vue'
+import { usePage, Link } from '@inertiajs/vue3'
 import PostList from './components/PostList.vue'
-import { usePosts } from '../../composable/usePost.js'
+
+const page = usePage()
 
 const props = defineProps({
   posts: { type: Object, required: true },
 })
 
-// Composable holds all the logic
-const {
-  localPosts,
-  setPosts,
-  editingId,
-  form,
-  isProcessing,
-  isLoading,
-  submit,
-  startEdit,
-  clearForm,
-  cancelEdit,
-  remove,
-} = usePosts(props.posts)
+const currentUser = computed(() => page.props.auth?.user || {})
 
-// Keep in sync when Inertia rehydrates
-watch(
-  () => props.posts?.data,
-  (next) => setPosts(next),
-  { immediate: true }
+// Local copy of posts as a reactive array
+const localPosts = reactive(
+  Array.isArray(props.posts?.data) ? [...props.posts.data] : []
 )
+
+const isLoading = ref(!(Array.isArray(props.posts?.data) && props.posts.data.length >= 0))
 </script>

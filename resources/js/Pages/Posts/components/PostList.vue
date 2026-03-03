@@ -4,7 +4,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2v-5.5a2 2 0 012-2H7m2 0a2 2 0 00-2 2v2.75m0 0V7a2 2 0 012-2h5.25V21" />
       </svg>
-      Your Posts
+      {{ showTitle }}
     </h2>
 
     <!-- Loading State -->
@@ -42,6 +42,24 @@
         class="group bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-200 overflow-hidden animate-in fade-in">
         <!-- Post Content -->
         <div class="p-5 sm:p-6">
+          <!-- User Info Section -->
+          <div class="flex items-center gap-3 mb-4">
+            <button
+              type="button"
+              @click="goToProfile(post.user.id)"
+              class="flex items-center gap-3 hover:opacity-75 transition-opacity flex-1">
+              <!-- User Avatar -->
+              <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-semibold">
+                {{ getInitials(post.user.name) }}
+              </div>
+              <!-- User Name -->
+              <div class="text-sm">
+                <p class="font-semibold text-gray-900 hover:text-indigo-600">{{ post.user.name }}</p>
+                <p class="text-gray-500 text-xs">{{ formatDate(post.created_at) }}</p>
+              </div>
+            </button>
+          </div>
+
           <div class="flex items-start justify-between gap-4">
             <!-- Main Content -->
             <div class="min-w-0 flex-1">
@@ -59,12 +77,6 @@
               <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500">
                 <span class="flex items-center gap-1">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <time :title="formatFullDate(post.created_at)">{{ formatDate(post.created_at) }}</time>
-                </span>
-                <span class="flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   {{ post.body.split(' ').length }} words
@@ -72,8 +84,8 @@
               </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="shrink-0 flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+            <!-- Action Buttons (only for own posts) -->
+            <div v-if="isOwnPost(post)" class="shrink-0 flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               <button
                 type="button"
                 class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-indigo-50 text-gray-600 hover:text-indigo-600 transition-colors"
@@ -104,13 +116,38 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 
-defineProps({
+const props = defineProps({
   posts: { type: Array, required: true },
   isLoading: { type: Boolean, default: false },
+  showTitle: { type: String, default: 'Posts' },
+  isProfilePage: { type: Boolean, default: false },
 })
+
 defineEmits(['edit', 'delete'])
+
+const page = usePage()
+const currentUserId = computed(() => page.props.auth?.user?.id)
+
+const isOwnPost = (post) => {
+  return currentUserId.value === post.user.id
+}
+
+const goToProfile = (userId) => {
+  router.get(`/profile/${userId}`)
+}
+
+const getInitials = (name) => {
+  return name
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
 
 const formatDate = (date) => {
   return new Intl.DateTimeFormat('en-US', {
