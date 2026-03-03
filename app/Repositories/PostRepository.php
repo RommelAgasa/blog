@@ -29,7 +29,7 @@ class PostRepository implements PostRepositoryInterface{
      * @param array Post $newPost
      * @return Post
      */
-    public function createPost(array $newPost)
+    public function createPost(array $newPost): Post
     {
         return Post::create($newPost);
     }
