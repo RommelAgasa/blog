@@ -65,7 +65,12 @@ export function usePosts(initialPosts) {
         body: form.body,
         userId: form.userId,
       })
-      form.reset()
+      console.log('Data:', {
+        title: form.title,
+        body: form.body,
+        userId: form.userId,
+      })
+      clearForm()
       toast.success('Post created successfully!')
     } catch (e) {
       if (e.response?.status === 422) form.setError(e.response.data.errors || {})
@@ -101,7 +106,9 @@ export function usePosts(initialPosts) {
   }
 
   function clearForm() {
+    const userId = form.userId // Preserve userId
     form.reset()
+    form.userId = userId // Restore userId after reset
     form.clearErrors()
   }
 
