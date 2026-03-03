@@ -9,8 +9,7 @@
       <input
         id="title"
         type="text"
-        :value="form.title"
-        @input="form.title = $event.target.value"
+        v-model="form.title"
         placeholder="Enter title"
         required
         class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15"
@@ -21,8 +20,7 @@
       <textarea
         id="body"
         rows="6"
-        :value="form.body"
-        @input="form.body = $event.target.value"
+        v-model="form.body"
         placeholder="Write something..."
         required
         class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15"
