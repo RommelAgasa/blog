@@ -7,4 +7,9 @@ Route::get('/', function () {
     return Inertia::render('Login/Index');
 });
 
+Route::get('/signup', function () {
+    return Inertia::render('Signup/Index');
+});
+
+
 Route::apiResource('posts',PostController::class);
