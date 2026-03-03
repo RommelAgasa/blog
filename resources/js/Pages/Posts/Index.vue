@@ -38,5 +38,6 @@ const currentUser = computed(() => page.props.auth?.user || {})
 // Pass the entire posts object (with data and pagination metadata)
 const localPosts = computed(() => props.posts || {})
 
-const isLoading = ref(!(Array.isArray(props.posts?.data) && props.posts.data.length >= 0))
+// Check if posts data has been populated yet (still loading if data isn't an array)
+const isLoading = ref(!Array.isArray(props.posts?.data))
 </script>
