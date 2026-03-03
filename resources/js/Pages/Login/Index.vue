@@ -18,22 +18,6 @@
                 <div class="p-6 space-y-5">
                     <p class="text-gray-500 text-sm">Please sign in to continue</p>
 
-                    <!-- Name Field -->
-                    <div class="space-y-2">
-                        <label for="name" class="block text-sm font-semibold text-gray-900">
-                            Name
-                            <span class="text-red-500">*</span>
-                        </label>
-                        <div class="flex items-center px-4 py-2.5 border border-gray-300 rounded-lg focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all duration-200 hover:border-gray-400">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-gray-400">
-                                <path 
-                                    d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z" 
-                                    fill="currentColor"/>
-                            </svg>
-                            <input type="text" id="name" placeholder="Your name" class="ml-3 bg-transparent text-gray-900 placeholder-gray-400 outline-none text-sm w-full" required>                 
-                        </div>
-                    </div>
-
                     <!-- Email Field -->
                     <div class="space-y-2">
                         <label for="email" class="block text-sm font-semibold text-gray-900">
