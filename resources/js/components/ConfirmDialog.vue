@@ -54,9 +54,10 @@ function cancel() {
 .dialog-enter-from,
 .dialog-leave-to {
   opacity: 0;
+}
 
-  .dialog > div {
-    transform: scale(0.95);
-  }
+.dialog-enter-from > div,
+.dialog-leave-to > div {
+  transform: scale(0.95);
 }
 </style>
