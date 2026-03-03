@@ -16,7 +16,7 @@ Route::get('/signup', function () {
 // Auth Routes
 Route::post('/auth/signup', [AuthController::class, 'signup']);
 Route::post('/auth/login', [AuthController::class, 'login']);
-Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth');
+Route::get('/auth/logout', [AuthController::class, 'logout'])->middleware('auth');
 Route::get('/auth/user', [AuthController::class, 'user'])->middleware('auth');
 
 // Protected Routes (require authentication)
