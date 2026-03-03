@@ -15,9 +15,23 @@ export function usePosts(initialPosts) {
     Array.isArray(initialPosts?.data) ? [...initialPosts.data] : []
   )
 
+  // Store pagination metadata
+  const paginationMeta = reactive(initialPosts?.meta || {})
+
   // Keep in sync if server rehydrates
   const setPosts = (next) => {
     localPosts.splice(0, localPosts.length, ...(Array.isArray(next) ? next : []))
+    isLoading.value = false
+  }
+
+  // Update pagination metadata and posts
+  const updatePostsWithPagination = (postsObj) => {
+    if (postsObj?.data) {
+      localPosts.splice(0, localPosts.length, ...postsObj.data)
+    }
+    if (postsObj?.meta) {
+      Object.assign(paginationMeta, postsObj.meta)
+    }
     isLoading.value = false
   }
 
@@ -138,7 +152,9 @@ export function usePosts(initialPosts) {
 
   return {
     localPosts,
+    paginationMeta,
     setPosts,
+    updatePostsWithPagination,
     editingId,
     form,
     isProcessing,

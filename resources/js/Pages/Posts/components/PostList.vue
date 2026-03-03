@@ -24,7 +24,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="posts.length === 0" class="text-center py-16 bg-white rounded-lg border border-gray-200">
+    <div v-else-if="paginatedPosts.length === 0" class="text-center py-16 bg-white rounded-lg border border-gray-200">
       <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-gray-100 mb-4">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -37,7 +37,7 @@
     <!-- Posts List -->
     <div v-else class="space-y-4">
       <div
-        v-for="post in posts"
+        v-for="post in paginatedPosts"
         :key="post.id"
         class="group bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-200 overflow-hidden animate-in fade-in">
         <!-- Post Content -->
@@ -111,6 +111,62 @@
           </div>
         </div>
       </div>
+
+      <!-- Pagination Controls -->
+      <div v-if="paginationMeta" class="mt-8 flex items-center justify-between border-t border-gray-200 pt-6">
+        <div class="text-sm text-gray-600">
+          Showing page <span class="font-semibold">{{ paginationMeta.current_page }}</span> of
+          <span class="font-semibold">{{ paginationMeta.last_page }}</span> 
+          ({{ paginationMeta.total }} total posts)
+        </div>
+
+        <!-- Pagination Links -->
+        <div class="flex items-center gap-2">
+          <!-- Previous Button -->
+          <button
+            v-if="paginationMeta.current_page > 1"
+            @click="goToPage(paginationMeta.current_page - 1)"
+            class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Previous
+          </button>
+          <button
+            v-else
+            disabled
+            class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-lg cursor-not-allowed">
+            Previous
+          </button>
+
+          <!-- Page Numbers -->
+          <div class="flex items-center gap-1">
+            <button
+              v-for="page in pageNumbers"
+              :key="page"
+              @click="goToPage(page)"
+              :class="[
+                'px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                page === paginationMeta.current_page
+                  ? 'bg-indigo-600 text-white border border-indigo-600'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+              ]">
+              {{ page }}
+            </button>
+          </div>
+
+          <!-- Next Button -->
+          <button
+            v-if="paginationMeta.current_page < paginationMeta.last_page"
+            @click="goToPage(paginationMeta.current_page + 1)"
+            class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Next
+          </button>
+          <button
+            v-else
+            disabled
+            class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-lg cursor-not-allowed">
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -121,7 +177,7 @@ import { usePage } from '@inertiajs/vue3'
 import { router } from '@inertiajs/vue3'
 
 const props = defineProps({
-  posts: { type: Array, required: true },
+  posts: { type: Object, required: true },
   isLoading: { type: Boolean, default: false },
   showTitle: { type: String, default: 'Posts' },
   isProfilePage: { type: Boolean, default: false },
@@ -132,12 +188,46 @@ defineEmits(['edit', 'delete'])
 const page = usePage()
 const currentUserId = computed(() => page.props.auth?.user?.id)
 
+// Extract posts data and pagination info
+const paginatedPosts = computed(() => {
+  return Array.isArray(props.posts?.data) ? props.posts.data : []
+})
+
+const paginationMeta = computed(() => {
+  return props.posts?.meta || null
+})
+
+// Calculate visible page numbers (show max 5 pages)
+const pageNumbers = computed(() => {
+  if (!paginationMeta.value) return []
+  
+  const current = paginationMeta.value.current_page
+  const last = paginationMeta.value.last_page
+  const range = 2
+  
+  let start = Math.max(1, current - range)
+  let end = Math.min(last, current + range)
+  
+  const pages = []
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+  
+  return pages
+})
+
 const isOwnPost = (post) => {
   return currentUserId.value === post.user.id
 }
 
 const goToProfile = (userId) => {
   router.get(`/profile/${userId}`)
+}
+
+const goToPage = (pageNum) => {
+  const url = new URL(window.location.href)
+  url.searchParams.set('page', pageNum)
+  router.get(url.pathname + url.search)
 }
 
 const getInitials = (name) => {

@@ -8,22 +8,22 @@ use App\Models\Post;
 class PostRepository implements PostRepositoryInterface{
     
 /**
-     * Get all posts from all users
-     * @return \Illuminate\Database\Eloquent\Collection<int, Post>
+     * Get all posts from all users with pagination
+     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public function getAllPost(){
-        return Post::orderBy('created_at', 'desc')->get();
+        return Post::orderBy('created_at', 'desc')->paginate(10);
     }
 
     /**
-     * Get posts by a specific user
+     * Get posts by a specific user with pagination
      * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Collection<int, Post>
+     * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public function getUserPosts($userId){
         return Post::where('userId', $userId)
                    ->orderBy('created_at', 'desc')
-                   ->get();
+                   ->paginate(10);
     }
 
     /**

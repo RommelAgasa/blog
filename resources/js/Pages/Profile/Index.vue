@@ -53,7 +53,7 @@
         <!-- Posts List Section -->
         <div :class="isOwnProfile ? 'lg:col-span-2' : 'lg:col-span-3'">
           <PostList
-            :posts="localPosts"
+            :posts="postsWithPagination"
             :is-loading="isLoading"
             :show-title="`${profile.name}'s Posts`"
             :is-profile-page="true"
@@ -67,7 +67,7 @@
 </template>
 
 <script setup>
-import { watch } from 'vue'
+import { watch, computed } from 'vue'
 import PostForm from '../Posts/components/PostForm.vue'
 import PostList from '../Posts/components/PostList.vue'
 import { usePosts } from '../../composable/usePost.js'
@@ -81,7 +81,8 @@ const props = defineProps({
 // Composable holds all the logic
 const {
   localPosts,
-  setPosts,
+  paginationMeta,
+  updatePostsWithPagination,
   editingId,
   form,
   isProcessing,
@@ -93,11 +94,17 @@ const {
   remove,
 } = usePosts(props.posts)
 
+// Create a computed object that combines posts with pagination
+const postsWithPagination = computed(() => ({
+  data: localPosts,
+  meta: paginationMeta,
+}))
+
 // Keep in sync when Inertia rehydrates
 watch(
-  () => props.posts?.data,
-  (next) => setPosts(next),
-  { immediate: true }
+  () => props.posts,
+  (next) => updatePostsWithPagination(next),
+  { immediate: false }
 )
 
 const getInitials = (name) => {

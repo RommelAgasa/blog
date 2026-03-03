@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { usePage, Link } from '@inertiajs/vue3'
 import PostList from './components/PostList.vue'
 
@@ -35,10 +35,8 @@ const props = defineProps({
 
 const currentUser = computed(() => page.props.auth?.user || {})
 
-// Local copy of posts as a reactive array
-const localPosts = reactive(
-  Array.isArray(props.posts?.data) ? [...props.posts.data] : []
-)
+// Pass the entire posts object (with data and pagination metadata)
+const localPosts = computed(() => props.posts || {})
 
 const isLoading = ref(!(Array.isArray(props.posts?.data) && props.posts.data.length >= 0))
 </script>
