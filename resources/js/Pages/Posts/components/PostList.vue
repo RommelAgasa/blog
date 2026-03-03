@@ -1,92 +1,132 @@
 <template>
-  <div class="w-full border border-gray-300/60 rounded-2xl px-8 bg-white p-4">
-    <h2 class="text-xl font-semibold mb-4">Posts</h2>
+  <div class="w-full">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2v-5.5a2 2 0 012-2H7m2 0a2 2 0 00-2 2v2.75m0 0V7a2 2 0 012-2h5.25V21" />
+      </svg>
+      Your Posts
+    </h2>
 
     <!-- Loading State -->
     <div v-if="isLoading" class="space-y-4">
-      <div
-        v-for="i in 3"
-        :key="`skeleton-${i}`"
-        class="animate-pulse">
-        <div class="h-5 bg-gray-200 rounded mb-2 w-3/4"></div>
-        <div class="h-4 bg-gray-100 rounded w-full mb-1"></div>
-        <div class="h-4 bg-gray-100 rounded w-5/6"></div>
+      <div v-for="i in 3" :key="`skeleton-${i}`" class="bg-white rounded-lg border border-gray-200 p-4 animate-pulse">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1 space-y-3">
+            <div class="h-5 bg-gray-200 rounded w-3/4"></div>
+            <div class="space-y-2">
+              <div class="h-4 bg-gray-100 rounded w-full"></div>
+              <div class="h-4 bg-gray-100 rounded w-5/6"></div>
+            </div>
+            <div class="h-3 bg-gray-100 rounded w-1/4"></div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Empty State -->
-    <div
-      v-else-if="posts.length === 0"
-      class="text-center py-12">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-16 w-16 mx-auto text-gray-300 mb-4"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4" />
-      </svg>
-      <h3 class="text-gray-500 font-semibold mb-1">No posts yet</h3>
-      <p class="text-gray-400 text-sm">Create your first post to get started</p>
+    <div v-else-if="posts.length === 0" class="text-center py-16 bg-white rounded-lg border border-gray-200">
+      <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-gray-100 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">No posts yet</h3>
+      <p class="text-gray-600 text-sm">Start creating your first post to share your thoughts with the world</p>
     </div>
 
     <!-- Posts List -->
-    <ul v-else class="list-none p-0 m-0 space-y-4">
-      <li
+    <div v-else class="space-y-4">
+      <div
         v-for="post in posts"
         :key="post.id"
-        class="group animate-in fade-in">
-        <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <h3 class="m-0 mb-1 text-[1.05rem] font-semibold truncate">
-              {{ post.title }}
-            </h3>
-            <p class="m-0 text-gray-700 leading-relaxed">
-              {{ post.body }}
-            </p>
-          </div>
-          <div class="shrink-0 flex items-center gap-1 opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-            <button
-              type="button"
-              class="inline-flex items-center justify-center p-2 rounded-md hover:bg-gray-100 text-gray-600 hover:text-indigo-600"
-              @click="$emit('edit', post)"
-              aria-label="Edit post"
-              title="Edit">
-              <!-- pencil -->
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                      d="M16.862 4.487l1.651-1.65a2.338 2.338 0 013.305 3.306l-9.46 9.46a4.5 4.5 0 01-1.88 1.128l-3.12.936a.75.75 0 01-.926-.926l.936-3.12a4.5 4.5 0 011.128-1.88l9.366-9.364z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                      d="M15 5l4 4" />
-              </svg>
-            </button>
+        class="group bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-200 overflow-hidden animate-in fade-in">
+        <!-- Post Content -->
+        <div class="p-5 sm:p-6">
+          <div class="flex items-start justify-between gap-4">
+            <!-- Main Content -->
+            <div class="min-w-0 flex-1">
+              <!-- Title -->
+              <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                {{ post.title }}
+              </h3>
+              
+              <!-- Body Preview -->
+              <p class="text-gray-700 text-sm sm:text-base leading-relaxed mb-3 line-clamp-3">
+                {{ post.body }}
+              </p>
+              
+              <!-- Metadata -->
+              <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500">
+                <span class="flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <time :title="formatFullDate(post.created_at)">{{ formatDate(post.created_at) }}</time>
+                </span>
+                <span class="flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  {{ post.body.split(' ').length }} words
+                </span>
+              </div>
+            </div>
 
-            <button
-              type="button"
-              class="inline-flex items-center justify-center p-2 rounded-md hover:bg-red-50 text-gray-600 hover:text-red-600"
-              @click="$emit('delete', post)"
-              aria-label="Delete post"
-              title="Delete">
-              <!-- trash -->
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                      d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m3 0V5a2 2 0 012-2h4a2 2 0 012 2v2m-5 4v6m4-6v6" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                      d="M4 7h16M10 3h4" />
-              </svg>
-            </button>
+            <!-- Action Buttons -->
+            <div class="shrink-0 flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+              <button
+                type="button"
+                class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-indigo-50 text-gray-600 hover:text-indigo-600 transition-colors"
+                @click="$emit('edit', post)"
+                aria-label="Edit post"
+                title="Edit">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors"
+                @click="$emit('delete', post)"
+                aria-label="Delete post"
+                title="Delete">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
-      </li>
-    </ul>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
+import { defineProps, defineEmits } from 'vue'
+
 defineProps({
   posts: { type: Array, required: true },
   isLoading: { type: Boolean, default: false },
 })
 defineEmits(['edit', 'delete'])
+
+const formatDate = (date) => {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(date))
+}
+
+const formatFullDate = (date) => {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(date))
+}
 </script>
