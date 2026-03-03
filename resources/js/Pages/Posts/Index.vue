@@ -10,7 +10,7 @@
     />
 
     <PostList
-      :posts="localPosts.data"
+      :posts="localPosts"
       :is-loading="isLoading"
       @edit="startEdit"
       @delete="remove"

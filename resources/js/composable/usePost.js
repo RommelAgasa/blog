@@ -8,14 +8,14 @@ export function usePosts(initialPosts) {
   const toast = useToast()
   const { show: showConfirm } = useConfirm()
   
-  // Local copy of posts (immutable prop -> mutable local)
-  const localPosts = reactive({
-    data: Array.isArray(initialPosts?.data) ? [...initialPosts.data] : [],
-  })
+  // Local copy of posts as a reactive array
+  const localPosts = reactive(
+    Array.isArray(initialPosts?.data) ? [...initialPosts.data] : []
+  )
 
   // Keep in sync if server rehydrates
   const setPosts = (next) => {
-    localPosts.data = Array.isArray(next) ? [...next] : []
+    localPosts.splice(0, localPosts.length, ...(Array.isArray(next) ? next : []))
     isLoading.value = false
   }
 
