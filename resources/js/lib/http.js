@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const http = axios.create({
-  headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  headers: { 'X-Requested-With': 'XMLHttpRequest' }, // for security
   withCredentials: true,
 })
 

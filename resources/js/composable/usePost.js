@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue'
-import { useForm } from '@inertiajs/vue3'
+import { useForm } from '@inertiajs/vue3' // use for form management and vaidaltion error handling
 import { createPost, updatePost, deletePostById } from '../services/post.service'
 import { useToast } from './useToast'
 import { useConfirm } from './useConfirm'
