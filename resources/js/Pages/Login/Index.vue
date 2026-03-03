@@ -70,13 +70,13 @@
 
                 <!-- Footer -->
                 <div class="px-6 py-4 border-t border-gray-200 bg-gray-50/50 text-center">
-                    <p class="text-gray-500 text-sm">Don't have an account? <a class="text-indigo-600 hover:text-indigo-700 font-semibold" href="/signup">Sign up</a></p>
+                    <p class="text-gray-500 text-sm">Don't have an account? <Link href="/signup" class="text-indigo-600 hover:text-indigo-700 font-semibold">Sign up</Link></p>
                 </div>
             </form>
         </div>
     </div>
 </template>
 
-<script>
-
+<script setup>
+import { Link } from '@inertiajs/vue3'
 </script>
