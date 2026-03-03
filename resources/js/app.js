@@ -1,6 +1,8 @@
 import './bootstrap';
 import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
+import Toast from '@/components/Toast.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 createInertiaApp({
   resolve: name => {
@@ -8,7 +10,10 @@ createInertiaApp({
     return pages[`./Pages/${name}.vue`]
   },
   setup({ el, App, props, plugin }) {
-    createApp({ render: () => h(App, props) })
+    const app = createApp({
+      render: () => h('div', [h(App, props), h(Toast), h(ConfirmDialog)])
+    })
+    app
       .use(plugin)
       .mount(el)
   },
