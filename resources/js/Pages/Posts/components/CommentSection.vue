@@ -88,7 +88,7 @@ import { defineProps, defineEmits, ref, watch, computed } from 'vue'
 
 const props = defineProps({
   post: { type: Object, required: true },
-  expanded: { type: Boolean, required: true },
+  expanded: { type: Boolean, default: false },
   commentText: { type: String, default: '' },
   currentUserName: { type: String, default: 'Guest' },
   currentUserId: { type: Number, default: null },

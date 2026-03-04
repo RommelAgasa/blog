@@ -1,4 +1,4 @@
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 import { useForm } from '@inertiajs/vue3' // use for form management and vaidaltion error handling
 import { usePage } from '@inertiajs/vue3'
 import { createPost, updatePost, deletePostById } from '../services/post.service'
@@ -38,27 +38,17 @@ export function usePosts(initialPosts) {
   // Edit state
   const editingId = ref(null)
 
-  // Form with Inertia error bag
+  // Track current user ID reactively
+  const userId = computed(() => page.props.auth?.user?.id || null)
+
+  // Form with Inertia error bag  
   const form = useForm({
-    userId: null,
     title: '',
     body: '',
   })
 
   const isProcessing = ref(false)
   const isLoading = ref(!(Array.isArray(initialPosts?.data) && initialPosts.data.length >= 0))
-
-  // Get authenticated user from Inertia shared props
-  const initializeAuthenticatedUser = () => {
-    const authUser = page.props.auth?.user
-    if (authUser) {
-      form.userId = authUser.id
-    }
-  }
-
-  onMounted(() => {
-    initializeAuthenticatedUser()
-  })
 
   async function submit() {
     editingId.value ? await onUpdate() : await onCreate()
@@ -68,27 +58,69 @@ export function usePosts(initialPosts) {
     isProcessing.value = true
     form.clearErrors()
 
-    console.log('Creating post with data:', {
-      title: form.title,
-      body: form.body,
-      userId: form.userId,
-    });
+    // Debug: Log current state
+    console.log('=== POST CREATION DEBUG ===')
+    console.log('User ID:', userId.value)
+    console.log('Auth props:', page.props.auth)
+    console.log('Form data:', { title: form.title, body: form.body })
+
+    if (!userId.value) {
+      console.error('❌ User ID not available!')
+      toast.error('User not authenticated. Please refresh the page.')
+      isProcessing.value = false
+      return
+    }
+
+    if (!form.title?.trim() || !form.body?.trim()) {
+      console.error('❌ Form fields are empty!')
+      toast.error('Please fill in all fields.')
+      isProcessing.value = false
+      return
+    }
+    
     try {
-      await createPost({
+      const newPost = await createPost({
         title: form.title,
         body: form.body,
-        userId: form.userId,
+        userId: userId.value,
       })
-      console.log('Data:', {
-        title: form.title,
-        body: form.body,
-        userId: form.userId,
-      })
+      
+      // Add newly created post to the beginning of the list
+      if (newPost && newPost.id) {
+        localPosts.unshift(newPost)
+        // Update pagination total count if available
+        if (paginationMeta.total) {
+          paginationMeta.total += 1
+        }
+      } else {
+        console.warn('⚠️  No post ID in response:', newPost)
+      }
+      
       clearForm()
       toast.success('Post created successfully!')
     } catch (e) {
-      if (e.response?.status === 422) form.setError(e.response.data.errors || {})
-      else toast.error('Something went wrong while saving.')
+
+      
+      console.error('❌ POST CREATION ERROR:', {
+        status: e.response?.status,
+        statusText: e.response?.statusText,
+        data: e.response?.data,
+        message: e.message,
+        stack: e.stack
+      })
+      
+      if (e.response?.status === 422) {
+        console.error('Validation errors:', e.response.data.errors)
+        form.setError(e.response.data.errors || {})
+      } else if (e.response?.status === 419) {
+        console.error('CSRF token error - should be retried automatically')
+        toast.error('Session expired. Please refresh and try again.')
+      } else if (e.response?.status === 401 || e.response?.status === 403) {
+        console.error('Auth error - redirecting to login')
+        toast.error('Authentication failed. Please login again.')
+      } else {
+        toast.error('Something went wrong while saving.')
+      }
     } finally {
       isProcessing.value = false
     }
@@ -98,14 +130,22 @@ export function usePosts(initialPosts) {
     isProcessing.value = true
     form.clearErrors()
     try {
-      await updatePost(editingId.value, {
+      const updatedPost = await updatePost(editingId.value, {
         title: form.title,
         body: form.body,
-        userId: form.userId,
+        userId: userId.value,
       })
+      
+      // Update the post in the local list
+      const postIndex = localPosts.findIndex(p => p.id === editingId.value)
+      if (postIndex > -1 && updatedPost) {
+        localPosts[postIndex] = updatedPost
+      }
+      
       toast.success('Post updated successfully!')
       cancelEdit()
     } catch (e) {
+      console.error('Post update error:', e)
       if (e.response?.status === 422) form.setError(e.response.data.errors || {})
       else toast.error('Something went wrong while updating.')
     } finally {
@@ -120,9 +160,7 @@ export function usePosts(initialPosts) {
   }
 
   function clearForm() {
-    const userId = form.userId // Preserve userId
     form.reset()
-    form.userId = userId // Restore userId after reset
     form.clearErrors()
   }
 
@@ -141,9 +179,21 @@ export function usePosts(initialPosts) {
     isProcessing.value = true
     try {
       await deletePostById(id)
+      
+      // Remove the post from the local list
+      const postIndex = localPosts.findIndex(p => p.id === id)
+      if (postIndex > -1) {
+        localPosts.splice(postIndex, 1)
+        // Update pagination total count if available
+        if (paginationMeta.total) {
+          paginationMeta.total -= 1
+        }
+      }
+      
       toast.success('Post deleted successfully!')
       if (editingId.value === id) cancelEdit()
     } catch (e) {
+      console.error('Post deletion error:', e)
       toast.error('Something went wrong while deleting.')
     } finally {
       isProcessing.value = false
@@ -159,6 +209,7 @@ export function usePosts(initialPosts) {
     form,
     isProcessing,
     isLoading,
+    userId,
     submit,
     startEdit,
     clearForm,

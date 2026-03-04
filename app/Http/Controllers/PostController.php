@@ -6,6 +6,7 @@ use App\Interfaces\Services\PostServiceInterface;
 use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostResource;
 use Inertia\Inertia;
 
 class PostController extends Controller
@@ -49,7 +50,7 @@ class PostController extends Controller
 
         return response()->json([
             'message' => 'Post created successfully',
-            'post' => $post
+            'post' => new PostResource($post)
         ], 201);
     }
 
@@ -81,8 +82,14 @@ class PostController extends Controller
         $postDetails = $request->validated();
 
         $this->postService->updatePost($post->id, $postDetails);
+        
+        // Refresh the post to get updated data
+        $post->refresh();
 
-        return response()->json(['message' => 'Post successfully updated'], 200);
+        return response()->json([
+            'message' => 'Post successfully updated',
+            'post' => new PostResource($post)
+        ], 200);
     }
 
     /**

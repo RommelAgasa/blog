@@ -10,8 +10,9 @@ export async function signup(payload) {
 
 export async function login(payload) {
   const response = await http.post('/auth/login', payload)
-  // Reload page to get authenticated user
-  await router.visit('/posts', { method: 'get' })
+  // Reload page to refresh CSRF token and get authenticated user
+  // Use window.location for a full page reload to ensure CSRF token is updated
+  window.location.href = '/posts'
   return response.data?.data || response.data
 }
 

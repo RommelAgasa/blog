@@ -32,7 +32,13 @@ class AuthenticationService implements AuthenticationServiceInterface
      */
     public function login(array $credentials): bool
     {
-        return Auth::attempt($credentials);
+        if (Auth::attempt($credentials)) {
+            // Regenerate session to invalidate old CSRF tokens
+            // and prevent session fixation attacks
+            session()->regenerate();
+            return true;
+        }
+        return false;
     }
 
     /**
