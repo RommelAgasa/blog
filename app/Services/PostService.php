@@ -6,6 +6,7 @@ use App\Http\Resources\PostResource;
 use App\Interfaces\Repositories\PostRepositoryInterface;
 use App\Interfaces\Services\PostServiceInterface;
 use App\Models\Post;
+use Illuminate\Support\Facades\Cache;
 
 class PostService implements PostServiceInterface
 {
@@ -28,8 +29,10 @@ class PostService implements PostServiceInterface
      */
     public function getAllPosts()
     {
-        $posts = $this->postRepository->getAllPost();
-        return PostResource::collection($posts);
+        return Cache::remember('posts.index', 3600, function () {
+            $posts = $this->postRepository->getAllPost();
+            return PostResource::collection($posts);
+        });
     }
 
     /**
@@ -52,7 +55,9 @@ class PostService implements PostServiceInterface
      */
     public function getPostById(Post $post)
     {
-        return new PostResource($post);
+        return Cache::remember("post.{$post->id}", 3600, function () use ($post) {
+            return new PostResource($post);
+        });
     }
 
     /**
@@ -63,7 +68,12 @@ class PostService implements PostServiceInterface
      */
     public function createPost(array $postDetails): Post
     {
-        return $this->postRepository->createPost($postDetails);
+        $post = $this->postRepository->createPost($postDetails);
+        
+        // Invalidate the posts listing cache since a new post was added
+        Cache::forget('posts.index');
+        
+        return $post;
     }
 
     /**
@@ -75,7 +85,13 @@ class PostService implements PostServiceInterface
      */
     public function updatePost(int $postId, array $postDetails): bool
     {
-        return $this->postRepository->updatePost($postId, $postDetails);
+        $result = $this->postRepository->updatePost($postId, $postDetails);
+        
+        // Invalidate both the specific post cache and the listing cache
+        Cache::forget("post.{$postId}");
+        Cache::forget('posts.index');
+        
+        return $result;
     }
 
     /**
@@ -86,6 +102,12 @@ class PostService implements PostServiceInterface
      */
     public function deletePost(int $postId): bool
     {
-        return $this->postRepository->deletePost($postId);
+        $result = $this->postRepository->deletePost($postId);
+        
+        // Invalidate both the specific post cache and the listing cache
+        Cache::forget("post.{$postId}");
+        Cache::forget('posts.index');
+        
+        return $result;
     }
 }
