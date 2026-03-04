@@ -16,5 +16,8 @@ createInertiaApp({
     app
       .use(plugin)
       .mount(el)
+    
+    // Remove data-page attribute after app is mounted to prevent DOM inspection of sensitive data
+    el.removeAttribute('data-page')
   },
 })
