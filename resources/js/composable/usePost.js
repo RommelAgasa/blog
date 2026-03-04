@@ -58,21 +58,13 @@ export function usePosts(initialPosts) {
     isProcessing.value = true
     form.clearErrors()
 
-    // Debug: Log current state
-    console.log('=== POST CREATION DEBUG ===')
-    console.log('User ID:', userId.value)
-    console.log('Auth props:', page.props.auth)
-    console.log('Form data:', { title: form.title, body: form.body })
-
     if (!userId.value) {
-      console.error('❌ User ID not available!')
       toast.error('User not authenticated. Please refresh the page.')
       isProcessing.value = false
       return
     }
 
     if (!form.title?.trim() || !form.body?.trim()) {
-      console.error('❌ Form fields are empty!')
       toast.error('Please fill in all fields.')
       isProcessing.value = false
       return
@@ -92,31 +84,16 @@ export function usePosts(initialPosts) {
         if (paginationMeta.total) {
           paginationMeta.total += 1
         }
-      } else {
-        console.warn('⚠️  No post ID in response:', newPost)
       }
       
       clearForm()
       toast.success('Post created successfully!')
     } catch (e) {
-
-      
-      console.error('❌ POST CREATION ERROR:', {
-        status: e.response?.status,
-        statusText: e.response?.statusText,
-        data: e.response?.data,
-        message: e.message,
-        stack: e.stack
-      })
-      
       if (e.response?.status === 422) {
-        console.error('Validation errors:', e.response.data.errors)
         form.setError(e.response.data.errors || {})
       } else if (e.response?.status === 419) {
-        console.error('CSRF token error - should be retried automatically')
         toast.error('Session expired. Please refresh and try again.')
       } else if (e.response?.status === 401 || e.response?.status === 403) {
-        console.error('Auth error - redirecting to login')
         toast.error('Authentication failed. Please login again.')
       } else {
         toast.error('Something went wrong while saving.')
@@ -145,7 +122,6 @@ export function usePosts(initialPosts) {
       toast.success('Post updated successfully!')
       cancelEdit()
     } catch (e) {
-      console.error('Post update error:', e)
       if (e.response?.status === 422) form.setError(e.response.data.errors || {})
       else toast.error('Something went wrong while updating.')
     } finally {
@@ -193,7 +169,6 @@ export function usePosts(initialPosts) {
       toast.success('Post deleted successfully!')
       if (editingId.value === id) cancelEdit()
     } catch (e) {
-      console.error('Post deletion error:', e)
       toast.error('Something went wrong while deleting.')
     } finally {
       isProcessing.value = false
