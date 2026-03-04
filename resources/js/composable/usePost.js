@@ -59,6 +59,24 @@ export function usePosts(initialPosts) {
     editingId.value ? await onUpdate() : await onCreate()
   }
 
+  const errorHandlers = {
+    422: (error) => form.setError(error.response.data.errors || {}),
+    419: () => toast.error('Session expired. Please refresh and try again.'),
+    401: () => toast.error('Authentication failed. Please login again.'),
+    403: () => toast.error('Authentication failed. Please login again.'),
+  }
+
+  const handleError = (error, defaultMessage = 'Something went wrong.') => {
+    const status = error.response?.status
+    const handler = errorHandlers[status]
+    
+    if (handler) {
+      handler(error)
+    } else {
+      toast.error(defaultMessage)
+    }
+  }
+
   async function onCreate() {
     isProcessing.value = true
     form.clearErrors()
@@ -81,15 +99,7 @@ export function usePosts(initialPosts) {
       clearForm()
       toast.success('Post created successfully!')
     } catch (e) {
-      if (e.response?.status === 422) {
-        form.setError(e.response.data.errors || {})
-      } else if (e.response?.status === 419) {
-        toast.error('Session expired. Please refresh and try again.')
-      } else if (e.response?.status === 401 || e.response?.status === 403) {
-        toast.error('Authentication failed. Please login again.')
-      } else {
-        toast.error('Something went wrong while saving.')
-      }
+      handleError(e, 'Something went wrong while saving.')
     } finally {
       isProcessing.value = false
     }
@@ -109,8 +119,7 @@ export function usePosts(initialPosts) {
       toast.success('Post updated successfully!')
       cancelEdit()
     } catch (e) {
-      if (e.response?.status === 422) form.setError(e.response.data.errors || {})
-      else toast.error('Something went wrong while updating.')
+      handleError(e, 'Something went wrong while updating.')
     } finally {
       isProcessing.value = false
     }
