@@ -24,15 +24,20 @@ export function usePosts(initialPosts) {
     isLoading.value = false
   }
 
+  const setPaginationMeta = (meta) => {
+    if (meta) {
+      Object.assign(paginationMeta, meta)
+    }
+  }
+
   // Update pagination metadata and posts
   const updatePostsWithPagination = (postsObj) => {
     if (postsObj?.data) {
-      localPosts.splice(0, localPosts.length, ...postsObj.data)
+      setPosts(postsObj.data)
     }
     if (postsObj?.meta) {
-      Object.assign(paginationMeta, postsObj.meta)
+      setPaginationMeta(postsObj.meta)
     }
-    isLoading.value = false
   }
 
   // Edit state
@@ -63,12 +68,6 @@ export function usePosts(initialPosts) {
       isProcessing.value = false
       return
     }
-
-    if (!form.title?.trim() || !form.body?.trim()) {
-      toast.error('Please fill in all fields.')
-      isProcessing.value = false
-      return
-    }
     
     try {
       const newPost = await createPost({
@@ -77,14 +76,7 @@ export function usePosts(initialPosts) {
         userId: userId.value,
       })
       
-      // Add newly created post to the beginning of the list
-      if (newPost && newPost.id) {
-        localPosts.unshift(newPost)
-        // Update pagination total count if available
-        if (paginationMeta.total) {
-          paginationMeta.total += 1
-        }
-      }
+      addPostToList(newPost)
       
       clearForm()
       toast.success('Post created successfully!')
@@ -113,12 +105,7 @@ export function usePosts(initialPosts) {
         userId: userId.value,
       })
       
-      // Update the post in the local list
-      const postIndex = localPosts.findIndex(p => p.id === editingId.value)
-      if (postIndex > -1 && updatedPost) {
-        localPosts[postIndex] = updatedPost
-      }
-      
+      updatePostInList(editingId.value, updatedPost)
       toast.success('Post updated successfully!')
       cancelEdit()
     } catch (e) {
@@ -145,14 +132,33 @@ export function usePosts(initialPosts) {
     clearForm()
   }
 
+  function addPostToList(newPost) {
+    if (!newPost || !newPost.id) return
+    
+    localPosts.unshift(newPost)
+    // Update pagination total count if available
+    if (paginationMeta.total) {
+      paginationMeta.total += 1
+    }
+  }
+
+  function updatePostInList(id, updatedPost) {
+    if (!updatedPost) return
+    
+    const postIndex = localPosts.findIndex(p => p.id === id)
+    if (postIndex === -1) return
+    
+    localPosts[postIndex] = updatedPost
+  }
+
   function removePostFromList(id) {
     const postIndex = localPosts.findIndex(p => p.id === id)
-    if (postIndex > -1) {
-      localPosts.splice(postIndex, 1)
-      // Update pagination total count if available
-      if (paginationMeta.total) {
-        paginationMeta.total -= 1
-      }
+    if (postIndex === -1) return
+    
+    localPosts.splice(postIndex, 1)
+    // Update pagination total count if available
+    if (paginationMeta.total) {
+      paginationMeta.total -= 1
     }
   }
 
