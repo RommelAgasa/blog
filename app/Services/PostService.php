@@ -7,6 +7,7 @@ use App\Interfaces\Repositories\PostRepositoryInterface;
 use App\Interfaces\Services\PostServiceInterface;
 use App\Models\Post;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Request;
 
 class PostService implements PostServiceInterface
 {
@@ -29,7 +30,10 @@ class PostService implements PostServiceInterface
      */
     public function getAllPosts()
     {
-        return Cache::remember('posts.index', 3600, function () {
+        $page = Request::query('page', 1);
+        $cacheKey = "posts.index.page.{$page}";
+        
+        return Cache::remember($cacheKey, 3600, function () {
             $posts = $this->postRepository->getAllPost();
             return PostResource::collection($posts);
         });

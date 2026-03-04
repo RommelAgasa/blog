@@ -14,7 +14,7 @@
 
       <!-- Posts List -->
       <PostList
-        :posts="localPosts"
+        :posts="postsWithPagination"
         :is-loading="isLoading"
         :show-title="'All Posts'"
       />
@@ -23,9 +23,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { watch, computed } from 'vue'
 import { usePage, Link } from '@inertiajs/vue3'
 import PostList from './components/PostList.vue'
+import { usePosts } from '../../composable/usePost.js'
 
 const page = usePage()
 
@@ -35,9 +36,24 @@ const props = defineProps({
 
 const currentUser = computed(() => page.props.auth?.user || {})
 
-// Pass the entire posts object (with data and pagination metadata)
-const localPosts = computed(() => props.posts || {})
+// Use the posts composable for pagination management
+const {
+  localPosts,
+  paginationMeta,
+  updatePostsWithPagination,
+  isLoading,
+} = usePosts(props.posts)
 
-// Check if posts data has been populated yet (still loading if data isn't an array)
-const isLoading = ref(!Array.isArray(props.posts?.data))
+// Create a computed object that combines posts with pagination
+const postsWithPagination = computed(() => ({
+  data: localPosts,
+  meta: paginationMeta,
+}))
+
+// Keep in sync when Inertia rehydrates
+watch(
+  () => props.posts,
+  (next) => updatePostsWithPagination(next),
+  { immediate: false }
+)
 </script>
