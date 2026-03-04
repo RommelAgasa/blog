@@ -46,8 +46,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        /**
+         * This is a common pattern in Inertia.js apps to avoid repeatedly 
+         * passing auth data from each controller action.
+         */
         // Share authenticated user info with all Inertia responses
-        Inertia::share([
+        Inertia::share([    
             'auth' => function () {
                 return [
                     'user' => auth()->user(),

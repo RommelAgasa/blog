@@ -16,34 +16,35 @@ export function useComment() {
     expandedComments.value[postId] = !expandedComments.value[postId]
   }
 
-  const handleCommentSubmit = async (postId, text) => {
+  const fetchComment = async (url, method, body, errorPrefix) => {
     try {
-      const response = await fetch('/comments', {
-        method: 'POST',
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
           'X-CSRF-TOKEN': getCsrfToken()
         },
-        body: JSON.stringify({
-          postId: postId,
-          comment: text
-        })
+        ...(body && { body: JSON.stringify(body) })
       })
 
       const data = await response.json()
       
       if (!response.ok) {
-        console.error('Comment submission error:', response.status, data)
-        throw new Error(data.message || 'Failed to submit comment')
+        console.error(`${errorPrefix} error:`, response.status, data)
+        throw new Error(data.message || `Failed to ${errorPrefix.toLowerCase()}`)
       }
 
       // Reload the page to get updated comments
       router.reload()
     } catch (error) {
-      console.error('Error submitting comment:', error)
-      alert('Failed to submit comment: ' + error.message)
+      console.error(`Error ${errorPrefix.toLowerCase()}:`, error)
+      alert(`Failed to ${errorPrefix.toLowerCase()}: ` + error.message)
     }
+  }
+
+  const handleCommentSubmit = async (postId, text) => {
+    await fetchComment('/comments', 'POST', { postId, comment: text }, 'submit comment')
   }
 
   const handleDeleteComment = async (commentId) => {
@@ -56,29 +57,7 @@ export function useComment() {
       return
     }
 
-    try {
-      const response = await fetch(`/comments/${commentId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRF-TOKEN': getCsrfToken()
-        }
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        console.error('Comment deletion error:', response.status, data)
-        throw new Error(data.message || 'Failed to delete comment')
-      }
-
-      // Reload the page to get updated comments
-      router.reload()
-    } catch (error) {
-      console.error('Error deleting comment:', error)
-      alert('Failed to delete comment: ' + error.message)
-    }
+    await fetchComment(`/comments/${commentId}`, 'DELETE', null, 'delete comment')
   }
 
   const getCommentCount = (post) => {

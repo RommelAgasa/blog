@@ -145,6 +145,17 @@ export function usePosts(initialPosts) {
     clearForm()
   }
 
+  function removePostFromList(id) {
+    const postIndex = localPosts.findIndex(p => p.id === id)
+    if (postIndex > -1) {
+      localPosts.splice(postIndex, 1)
+      // Update pagination total count if available
+      if (paginationMeta.total) {
+        paginationMeta.total -= 1
+      }
+    }
+  }
+
   async function remove(post) {
     const id = post?.id
     if (!id) return
@@ -155,16 +166,7 @@ export function usePosts(initialPosts) {
     isProcessing.value = true
     try {
       await deletePostById(id)
-      
-      // Remove the post from the local list
-      const postIndex = localPosts.findIndex(p => p.id === id)
-      if (postIndex > -1) {
-        localPosts.splice(postIndex, 1)
-        // Update pagination total count if available
-        if (paginationMeta.total) {
-          paginationMeta.total -= 1
-        }
-      }
+      removePostFromList(id)
       
       toast.success('Post deleted successfully!')
       if (editingId.value === id) cancelEdit()

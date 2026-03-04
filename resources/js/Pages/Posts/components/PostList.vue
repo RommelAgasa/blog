@@ -97,8 +97,8 @@
                 @update-comment-text="commentText[post.id] = $event" />
             </div>
 
-            <!-- Action Buttons (only for own posts) -->
-            <div v-if="isOwnPost(post)" class="shrink-0 flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+            <!-- Action Buttons (only for own posts on profile page) -->
+            <div v-if="isOwnPost(post) && isProfilePage" class="shrink-0 flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               <button
                 type="button"
                 class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-indigo-50 text-gray-600 hover:text-indigo-600 transition-colors"
