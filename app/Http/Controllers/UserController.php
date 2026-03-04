@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Interfaces\PostServiceInterface;
+use App\Interfaces\Services\PostServiceInterface;
 use Inertia\Inertia;
 
 class UserController extends Controller

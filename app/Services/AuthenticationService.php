@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Interfaces\AuthenticationServiceInterface;
+use App\Interfaces\Services\AuthenticationServiceInterface;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

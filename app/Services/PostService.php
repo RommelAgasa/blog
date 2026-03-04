@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Http\Resources\PostResource;
-use App\Interfaces\PostRepositoryInterface;
-use App\Interfaces\PostServiceInterface;
+use App\Interfaces\Repositories\PostRepositoryInterface;
+use App\Interfaces\Services\PostServiceInterface;
 use App\Models\Post;
 
 class PostService implements PostServiceInterface
