@@ -3,9 +3,13 @@
 namespace App\Providers;
 
 use App\Interfaces\Repositories\PostRepositoryInterface;
+use App\Interfaces\Repositories\CommentRepositoryInterface;
 use App\Interfaces\Services\PostServiceInterface;
+use App\Interfaces\Services\CommentServiceInterface;
 use App\Repositories\PostRepository;
+use App\Repositories\CommentRepository;
 use App\Services\PostService;
+use App\Services\CommentService;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 
@@ -24,6 +28,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(
             PostServiceInterface::class,
             PostService::class
+        );
+
+        $this->app->singleton(
+            CommentRepositoryInterface::class,
+            CommentRepository::class
+        );
+
+        $this->app->singleton(
+            CommentServiceInterface::class,
+            CommentService::class
         );
     }   
 

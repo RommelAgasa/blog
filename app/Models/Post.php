@@ -20,4 +20,8 @@ class Post extends Model
         return $this->belongsTo(User::class, 'userId', 'id');
     }
 
+    public function comments() {
+        return $this->hasMany(Comment::class, 'postId', 'id');
+    }
+
 }
